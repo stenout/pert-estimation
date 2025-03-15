@@ -1,0 +1,45 @@
+body {
+    font-family: Arial, sans-serif;
+}
+
+.header-buttons {
+    text-align: right;
+}
+
+#langSelect {
+    padding: 0 0 0 20px;
+    width: 100px;
+}
+
+th,
+td {
+    text-align: center;
+}
+
+td input[type="text"],
+td input[type="number"] {
+    margin-bottom: 0;
+}
+
+td input[type="number"] {
+    width: 100px;
+}
+
+input {
+    text-align: left;
+}
+
+button {
+    cursor: pointer;
+}
+
+.remove-task,
+.lang-toggle,
+.theme-toggle {
+    margin: 0 5px;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}

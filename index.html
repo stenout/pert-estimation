@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="light">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title></title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
+    <link rel="stylesheet" href="main.css">
+</head>
+<body>
+
+<header class="container grid">
+    <div>
+        <h2 id="title"></h2>
+    </div>
+    <div class="header-buttons">
+        <select id="langSelect" onchange="selectLanguage()">
+            <option value="ru">🇷🇺</option>
+            <option value="en">🇬🇧</option>
+        </select>
+        <span class="theme-toggle" onclick="toggleTheme()" id="themeIcon"></span>
+    </div>
+</header>
+
+<main class="container">
+    <button id="addTaskBtn" onclick="addTask()"></button>
+    <table>
+        <thead>
+        <tr>
+            <th rowspan="2"><small id="taskName"></small></th>
+            <th colspan="3"><small id="estimation"></small></th>
+            <th rowspan="2"><small id="expectedTime"></small></th>
+            <th rowspan="2"><small id="stdDeviation"></small></th>
+            <th rowspan="2"></th>
+        </tr>
+        <tr>
+            <th><small id="optimistic"></small></th>
+            <th><small id="mostLikely"></small></th>
+            <th><small id="pessimistic"></small></th>
+        </tr>
+        </thead>
+        <tbody id="taskTableBody"></tbody>
+    </table>
+    <h3><span id="totalTimeLabel"></span> <span id="totalTime">0</span></h3>
+    <h5><span id="totalDeviationLabel"></span> <span id="totalDeviation">0</span></h5>
+    <button id="exportToCSV" onclick="exportToCSV()"></button>
+</main>
+
+<footer class="container">
+    <div id="description"></div>
+</footer>
+
+<script src="main.js"></script>
+</body>
+</html>

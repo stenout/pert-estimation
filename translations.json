@@ -1,0 +1,32 @@
+{
+  "ru": {
+    "title": "Оценка задач по трем точкам (PERT)",
+    "taskName": "Название задачи",
+    "estimation": "Оценка времени",
+    "optimistic": "Оптимистичная",
+    "mostLikely": "Наиболее вероятная",
+    "pessimistic": "Пессимистичная",
+    "expectedTime": "Ожидаемое время",
+    "stdDeviation": "Отклонение",
+    "addTaskBtn": "Добавить задачу",
+    "totalTimeLabel": "Общее время:",
+    "totalDeviationLabel": "Общее отклонение:",
+    "exportToCSV": "Экспорт в CSV",
+    "description": "<p>Метод трех точек (PERT) используется для оценки времени выполнения задач в проекте. Он учитывает три варианта оценки:</p><ul><li>Оптимистичная — минимальное время при идеальных условиях.</li><li>Наиболее вероятная — реалистичное время.</li><li>Пессимистичная — максимальное время при неблагоприятных условиях.</li></ul><p>Отклонение показывает степень неопределенности или разброс в оценке времени выполнения задачи. Чем больше отклонение, тем выше риск задержки.</p><p>Формула расчета ожидаемого времени: <i>Ожидаемое время = (Оптимистичное + 4 × Наиболее вероятное + Пессимистичное) / 6</i><br>Отклонение: <i>Отклонение = (Пессимистичное - Оптимистичное) / 6</i></p><p>Этот метод помогает более точно оценить сроки выполнения проекта, учитывая неопределенности.</p><a href=\"https://ru.wikipedia.org/wiki/%D0%A2%D1%80%D1%91%D1%85%D0%BA%D1%80%D0%B0%D1%82%D0%BD%D1%8B%D0%B9_%D0%BC%D0%B5%D1%82%D0%BE%D0%B4\" target=\"_blank\">Подробнее</a>"
+  },
+  "en": {
+    "title": "Three-Point Task Estimation (PERT)",
+    "taskName": "Task Name",
+    "estimation": "Estimation",
+    "optimistic": "Optimistic",
+    "mostLikely": "Most Likely",
+    "pessimistic": "Pessimistic",
+    "expectedTime": "Expected Time",
+    "stdDeviation": "Deviation",
+    "addTaskBtn": "Add Task",
+    "totalTimeLabel": "Total Time:",
+    "totalDeviationLabel": "Total Deviation:",
+    "exportToCSV": "Export to CSV",
+    "description": "<p>The three-point estimation method (PERT) is used to estimate the time required to complete tasks in a project. It considers three types of estimates:</p><ul><li>Optimistic — the minimum time under ideal conditions.</li><li>Most likely — the realistic time.</li><li>Pessimistic — the maximum time under unfavorable conditions.</li></ul><p>Deviation indicates the degree of uncertainty or variability in the time estimate. The larger the deviation, the higher the risk of delay.</p><p>Formula for calculating the expected time: <i>Expected time = (Optimistic + 4 × Most likely + Pessimistic) / 6</i><br>Deviation: <i>Deviation = (Pessimistic - Optimistic) / 6</i></p><p>This method helps to more accurately estimate project timelines by accounting for uncertainties.</p><a href=\"https://en.wikipedia.org/wiki/Three-point_estimation\" target=\"_blank\">Learn more</a>"
+  }
+}
