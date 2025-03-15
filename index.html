@@ -23,7 +23,14 @@
 </header>
 
 <main class="container">
-    <button id="addTaskBtn" onclick="addTask()"></button>
+    <div class="grid">
+        <div>
+            <button id="addTaskBtn" onclick="addTask()"></button>
+        </div>
+        <div class="export">
+            <button id="exportToCSV" onclick="exportToCSV()"></button>
+        </div>
+    </div>
     <table>
         <thead>
         <tr>
@@ -43,7 +50,6 @@
     </table>
     <h3><span id="totalTimeLabel"></span> <span id="totalTime">0</span></h3>
     <h5><span id="totalDeviationLabel"></span> <span id="totalDeviation">0</span></h5>
-    <button id="exportToCSV" onclick="exportToCSV()"></button>
 </main>
 
 <footer class="container">
