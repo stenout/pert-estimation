@@ -1,25 +1,82 @@
-let translations = {};
+let state = {};
 
 fetch('./translations.json')
     .then(response => response.json())
     .then(data => {
-        translations = data;
-        init();
+        initState(data);
+        addTask();
     })
-    .catch(error => console.error('Ошибка загрузки translations.json:', error));
+    .catch(error => {
+        console.error('Ошибка загрузки translations.json:', error);
+        initState({ ru: {}, en: {} });
+    })
+    .finally(() => renderAll());
 
-function init() {
-    loadPreferences();
-    addTask();
-}
+const initState = (translations) => {
+    state = {
+        translations: translations,
+        el: {
+            html: document.documentElement,
+            header: {
+                title: document.getElementById('title'),
+                langSelect: document.getElementById('langSelect'),
+                themeSelect: document.getElementById('themeSelect'),
+            },
+            buttons: {
+                addTaskBtn: document.getElementById('addTaskBtn'),
+                exportToCSV: document.getElementById('exportToCSV'),
+            },
+            table: {
+                taskName: document.getElementById('taskName'),
+                estimation: document.getElementById('estimation'),
+                expectedTime: document.getElementById('expectedTime'),
+                stdDev: document.getElementById('stdDev'),
+                variance: document.getElementById('variance'),
+                optimistic: document.getElementById('optimistic'),
+                mostLikely: document.getElementById('mostLikely'),
+                pessimistic: document.getElementById('pessimistic'),
+                tasks: document.getElementById('tasks'),
+                totalTime: document.getElementById('totalTime'),
+            },
+            probability: {
+                resultBlock: document.getElementById('resultBlock'),
+                probabilities: document.getElementById('probabilities'),
+            },
+            description: document.getElementById('description'),
+        },
+        data: {
+            theme: getCookie('theme') || 'light',
+            language: getCookie('language') || 'ru',
+            tasks: [],
+            isTasksValid: false,
+            probabilities: [
+                {
+                    percent: 50,
+                    deviationsCount: 0,
+                    value: 0,
+                },
+                {
+                    percent: 75,
+                    deviationsCount: 0.675,
+                    value: 0,
+                },
+                {
+                    percent: 95,
+                    deviationsCount: 1.645,
+                    value: 0,
+                },
+            ],
+        }
+    }
+};
 
-function setCookie(name, value, days) {
+const setCookie = (name, value) => {
     const d = new Date();
-    d.setTime(d.getTime() + days * 24 * 60 * 60 * 1000);
+    d.setTime(d.getTime() + 365 * 24 * 60 * 60 * 1000);
     document.cookie = `${name}=${value};expires=${d.toUTCString()};path=/`;
 }
 
-function getCookie(name) {
+const getCookie = (name) => {
     const cookies = document.cookie.split('; ');
     for (const cookie of cookies) {
         const [key, value] = cookie.split('=');
@@ -28,128 +85,160 @@ function getCookie(name) {
     return null;
 }
 
-function toggleTheme() {
-    const html = document.documentElement;
-    const themeIcon = document.getElementById("themeIcon");
-    const currentTheme = html.getAttribute("data-theme");
-    const newTheme = currentTheme === "dark" ? "light" : "dark";
-    html.setAttribute("data-theme", newTheme);
-    themeIcon.textContent = newTheme === "dark" ? "🌙" : "☀️";
-    setCookie("theme", newTheme, 365);
+const toggleTheme = () => {
+    state.data.theme = state.data.theme === 'dark' ? 'light' : 'dark';
+    setCookie('theme', state.data.theme);
+    renderTheme();
 }
 
-function selectLanguage() {
-    const langSelect = document.getElementById("langSelect");
-    const newLang = langSelect.value;
-    setCookie("language", newLang, 365);
-    applyLanguage(newLang);
+const selectLanguage = () => {
+    state.data.language = state.el.header.langSelect.value;
+    setCookie('language', state.data.language);
+    renderLanguage();
 }
 
-function applyLanguage(lang) {
-    document.title = translations[lang].title;
-    Object.keys(translations[lang]).forEach(id => {
-        if (document.getElementById(id)) {
-            document.getElementById(id).innerHTML = translations[lang][id];
-        }
+const changeTaskName = (input, index) => {
+    state.data.tasks[index].name = input.value;
+}
+
+const changeEstimation = (input, index) => {
+    state.data.tasks[index][input.name] = parseFloat(input.value) || 0;
+    recalculate(index);
+    renderResult();
+}
+
+const addTask = () => {
+    state.data.tasks.push({
+        name: '',
+        optimistic: 0,
+        mostLikely: 0,
+        pessimistic: 0,
+        expectedTime: 0,
+        stdDev: 0,
+        variance: 0,
+        isValid: false,
     });
-}
+    renderResult();
+};
 
-function loadPreferences() {
-    const savedTheme = getCookie("theme") || "dark";
-    document.documentElement.setAttribute("data-theme", savedTheme);
-    document.getElementById("themeIcon").textContent = savedTheme === "dark" ? "🌙" : "☀️";
+const removeTask = (index) => {
+    state.data.tasks.splice(index, 1);
+    recalculate();
+    renderResult();
+};
 
-    const savedLang = getCookie("language") || "ru";
-    document.getElementById("langSelect").value = savedLang;
-    applyLanguage(savedLang);
-}
+const recalculate = (index) => {
+    if (index !== undefined) {
+        const task = state.data.tasks[index];
+        task.isValid = task.optimistic > 0 && task.mostLikely > 0 && task.pessimistic > 0;
+        task.expectedTime = (task.optimistic + 4 * task.mostLikely + task.pessimistic) / 6;
+        task.stdDev = (task.pessimistic - task.optimistic) / 6;
+        task.variance = task.stdDev ** 2;
+    }
 
-function calculatePert(o, m, p) {
-    return ((o + 4 * m + p) / 6).toFixed(1);
-}
+    state.data.isTasksValid = state.data.tasks.length > 0 && state.data.tasks.every(task => task.isValid);
 
-function calculateStdDev(o, p) {
-    return ((p - o) / 6).toFixed(1);
-}
+    if (state.data.isTasksValid) {
+        const expectedTimeSum = state.data.tasks.reduce((acc, task) => acc + task.expectedTime, 0);
+        const varianceSum = state.data.tasks.reduce((acc, task) => acc + task.variance, 0);
+        state.data.probabilities = state.data.probabilities.map((probability) => {
+            probability.value = probability.deviationsCount * varianceSum ** 0.5 + expectedTimeSum;
+            return probability;
+        });
+    }
+};
 
-function updateTotalTime() {
-    let totalTime = 0;
-    let totalDeviation = 0;
-    document.querySelectorAll('.task-time').forEach(cell => {
-        totalTime += parseFloat(cell.textContent) || 0;
-    });
-    document.querySelectorAll('.task-stddev').forEach(cell => {
-        totalDeviation += parseFloat(cell.textContent) || 0;
-    });
-    document.getElementById('totalTime').textContent = totalTime.toFixed(1);
-    document.getElementById('totalDeviation').textContent = totalDeviation.toFixed(1);
-}
+const exportToCSV = () => {
+    const lang = state.data.language;
+    const translationsForLang = state.translations[lang];
 
-function addTask() {
-    const tableBody = document.getElementById('taskTableBody');
-    const row = document.createElement('tr');
-    row.innerHTML = `
-          <td><input type="text" /></td>
-          <td><input type="number" min="0" oninput="recalculate(this)" /></td>
-          <td><input type="number" min="0" oninput="recalculate(this)" /></td>
-          <td><input type="number" min="0" oninput="recalculate(this)" /></td>
-          <td class="task-time">0</td>
-          <td class="task-stddev">0</td>
-          <td><button class="remove-task" onclick="removeTask(this)">❌</button></td>
-        `;
-    tableBody.appendChild(row);
-    recalculate(row.querySelector('input'));
-}
-
-function recalculate(input) {
-    const row = input.closest('tr');
-    const values = row.querySelectorAll('input[type=number]');
-    const o = parseFloat(values[0].value) || 0;
-    const m = parseFloat(values[1].value) || 0;
-    const p = parseFloat(values[2].value) || 0;
-    row.querySelector('.task-time').textContent = calculatePert(o, m, p);
-    row.querySelector('.task-stddev').textContent = calculateStdDev(o, p);
-    updateTotalTime();
-}
-
-function removeTask(button) {
-    button.closest('tr').remove();
-    updateTotalTime();
-}
-
-function exportToCSV() {
-    const lang = getCookie("language") || "ru";
-    const translationsForLang = translations[lang];
-
-    let csvContent = "data:text/csv;charset=utf-8,";
+    let csvContent = 'data:text/csv;charset=utf-8,';
 
     const headers = [
         translationsForLang.taskName,
-        translationsForLang.expectedTime,
-        translationsForLang.stdDeviation
+        translationsForLang.expectedTime
     ];
-    csvContent += headers.join(",") + "\n";
+    csvContent += headers.join(',') + '\n';
 
-    document.querySelectorAll('#taskTableBody tr').forEach(row => {
-        const inputs = row.querySelectorAll('input');
-        const taskName = inputs[0].value || translationsForLang.newTask;
-        const averageTime = row.querySelector('.task-time').textContent;
-        const stdDeviation = row.querySelector('.task-stddev').textContent;
-
+    state.data.tasks.forEach((task, index) => {
         const rowData = [
-            taskName,
-            averageTime,
-            stdDeviation
+            task.name,
+            task.expectedTime.toFixed(1)
         ];
-        csvContent += rowData.join(",") + "\n";
+        csvContent += rowData.join(',') + '\n';
     });
 
-    csvContent += `${translationsForLang.totalTimeLabel},${document.getElementById('totalTime').textContent}\n`;
-    csvContent += `${translationsForLang.totalDeviationLabel},${document.getElementById('totalDeviation').textContent}\n`;
+    csvContent += `${state.translations[lang].probabilityLabel},\n`;
+
+    state.data.probabilities.forEach((probability) => {
+        const rowData = [
+            `${probability.percent}%`,
+            probability.value.toFixed(1)
+        ];
+        csvContent += rowData.join(',') + '\n';
+    });
 
     const encodedUri = encodeURI(csvContent);
     const a = document.createElement('a');
     a.href = encodedUri;
     a.download = 'tasks-estimation.csv';
     a.click();
+};
+
+const renderAll = () => {
+    renderTheme();
+    renderLanguage();
+    renderResult();
+}
+
+const renderTheme = () => {
+    state.el.html.setAttribute('data-theme', state.data.theme);
+    state.el.header.themeSelect.textContent = state.data.theme === 'light' ? '☀️' : '🌙';
+}
+
+const renderLanguage = () => {
+    const lang = state.data.language;
+    document.title = state.translations[lang].title;
+    Object.keys(state.translations[lang]).forEach(id => {
+        if (document.getElementById(id)) {
+            document.getElementById(id).innerHTML = state.translations[lang][id];
+        }
+    });
+
+    state.el.header.langSelect.value = lang;
+}
+
+const renderResult = () => {
+    state.el.table.tasks.innerHTML = state.data.tasks
+        .map((task, index) => getTaskHtml(task, index))
+        .join("\n");
+
+    if (state.data.isTasksValid) {
+        state.el.table.totalTime.textContent = state.data.tasks
+            .reduce((acc, task) => acc + task.expectedTime, 0)
+            .toFixed(1);
+
+        state.el.probability.resultBlock.style.visibility = 'visible';
+
+        state.el.probability.probabilities.innerHTML = state.data.probabilities
+            .map((probability) => `<li><b>${probability.percent}%</b> - ${probability.value.toFixed(1)}</li>`)
+            .join("\n");
+    } else {
+        state.el.table.totalTime.textContent = '';
+        state.el.probability.resultBlock.style.visibility = 'hidden';
+        state.el.probability.probabilities.innerHTML = '';
+    }
+}
+
+const getTaskHtml = (task, index) => {
+    return `
+        <tr>
+            <td><input type="text" value="${task.name}" oninput="changeTaskName(this, ${index})" /></td>
+            <td><input name="optimistic" type="number" min="0" value="${task.optimistic}" onchange="changeEstimation(this, ${index})" /></td>
+            <td><input name="mostLikely" type="number" min="0" value="${task.mostLikely}" onchange="changeEstimation(this, ${index})" /></td>
+            <td><input name="pessimistic" type="number" min="0" value="${task.pessimistic}" onchange="changeEstimation(this, ${index})" /></td>
+            <td>${task.isValid ? task.expectedTime.toFixed(1) : ''}</td>
+            <td><button class='remove-task' onclick='removeTask(${index})'>❌</button></td>
+        </tr>
+        `;
 }

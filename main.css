@@ -11,31 +11,7 @@ body {
     width: 100px;
 }
 
-th,
-td {
-    text-align: center;
-}
-
-td input[type="text"],
-td input[type="number"] {
-    margin-bottom: 0;
-}
-
-td input[type="number"] {
-    width: 100px;
-}
-
-input {
-    text-align: left;
-}
-
-button {
-    cursor: pointer;
-}
-
-.remove-task,
-.lang-toggle,
-.theme-toggle {
+#themeSelect {
     margin: 0 5px;
     padding: 0;
     background: none;
@@ -44,6 +20,49 @@ button {
     cursor: pointer;
 }
 
+button {
+    cursor: pointer;
+}
+
 .export {
     text-align: right;
+}
+
+th,
+td {
+    text-align: center;
+}
+
+.task-name {
+    width: 40%;
+}
+
+td input[type="text"],
+td input[type="number"] {
+    margin-bottom: 0;
+}
+
+td input[type="number"] {
+    width: 110px;
+}
+
+input {
+    text-align: left;
+}
+
+.remove-task {
+    margin: 0 5px;
+    padding: 0;
+    background: none;
+    border: none;
+    font-size: 1rem;
+    cursor: pointer;
+}
+
+#resultBlock {
+    visibility: hidden;
+}
+
+#probabilities li {
+    list-style-type: none;
 }

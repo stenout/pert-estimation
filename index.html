@@ -18,26 +18,18 @@
             <option value="ru">🇷🇺</option>
             <option value="en">🇬🇧</option>
         </select>
-        <span class="theme-toggle" onclick="toggleTheme()" id="themeIcon"></span>
+        <span id="themeSelect" onclick="toggleTheme()"></span>
     </div>
 </header>
 
 <main class="container">
-    <div class="grid">
-        <div>
-            <button id="addTaskBtn" onclick="addTask()"></button>
-        </div>
-        <div class="export">
-            <button id="exportToCSV" onclick="exportToCSV()"></button>
-        </div>
-    </div>
+    <button id="addTaskBtn" onclick="addTask()"></button>
     <table>
         <thead>
         <tr>
-            <th rowspan="2"><small id="taskName"></small></th>
+            <th rowspan="2" class="task-name"><small id="taskName"></small></th>
             <th colspan="3"><small id="estimation"></small></th>
             <th rowspan="2"><small id="expectedTime"></small></th>
-            <th rowspan="2"><small id="stdDeviation"></small></th>
             <th rowspan="2"></th>
         </tr>
         <tr>
@@ -46,13 +38,31 @@
             <th><small id="pessimistic"></small></th>
         </tr>
         </thead>
-        <tbody id="taskTableBody"></tbody>
+        <tbody id="tasks"></tbody>
+        <tfoot>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td id="totalTime"></td>
+            <td></td>
+        </tr>
+        </tfoot>
     </table>
-    <h3><span id="totalTimeLabel"></span> <span id="totalTime">0</span></h3>
-    <h5><span id="totalDeviationLabel"></span> <span id="totalDeviation">0</span></h5>
+    <div id="resultBlock" class="grid">
+        <div>
+            <h4 id="probabilityLabel"></h4>
+            <ul id="probabilities"></ul>
+        </div>
+        <div class="export">
+            <button id="exportToCSV" onclick="exportToCSV()"></button>
+        </div>
+    </div>
 </main>
 
 <footer class="container">
+    <hr/>
     <div id="description"></div>
 </footer>
 
