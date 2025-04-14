@@ -168,6 +168,7 @@ const exportToCSV = () => {
         csvContent += rowData.join(',') + '\n';
     });
 
+    csvContent += `\n`;
     csvContent += `${state.translations[lang].probabilityLabel},\n`;
 
     state.data.probabilities.forEach((probability) => {
